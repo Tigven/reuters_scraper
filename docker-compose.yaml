@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  scraper:
+    build: ./scraper/
+    restart: always
+    env_file: '.env'
+    volumes:
+      - './scraper:/app'
+    depends_on:
+      - postgres
+      - mongo
+    command: 'bash -c "sleep 10 && python scraper.py --parse_forever"'
+    logging: &log
+     driver: "json-file"
+     options:
+       max-size: "1k"
+       max-file: "3"
+
+  postgres:
+    image: 'postgres:12-alpine'
+    restart: always
+    env_file: '.env'
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - 'pgdata:/var/lib/postgresql/data/'
+      - ./postgres/:/docker-entrypoint-initdb.d
+    logging: 
+      <<: *log
+
+  mongo:
+    image: 'mongo:4'
+    restart: always
+    command: '--storageEngine wiredTiger'
+    ports:
+      - '127.0.0.1:27017:27017'
+    volumes:
+      - 'mongodata:/data/db'
+    logging: 
+      <<: *log
+
+volumes:
+  pgdata:
+  mongodata:

@@ -1,0 +1,7 @@
+psql -U postgres -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS'"
+psql -U postgres -c "ALTER USER $DB_USER SET client_encoding TO 'utf8'"
+psql -U postgres -c "ALTER USER $DB_USER SET default_transaction_isolation TO 'read committed'"
+psql -U postgres -c "ALTER USER $DB_USER SET timezone TO 'UTC'"
+psql -U postgres -c "create database $DB_NAME owner $DB_USER"
+psql -U postgres -d $DB_NAME -c "CREATE TABLE $DB_TABLE (title text NOT NULL, description text NOT NULL, published timestamp NOT NULL, url text NOT NULL, full_text text NOT NULL, PRIMARY KEY(published, title))"
+psql -U postgres -d $DB_NAME -c "ALTER TABLE $DB_TABLE OWNER TO $DB_USER"
